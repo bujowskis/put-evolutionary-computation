@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "put-evolutionary-computation"
+version = "0.1.0"
+description = ""
+authors = ["Szymon Bujowski <s.bujowski@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+numpy = "^2.1.2"
+pandas = "^2.2.3"
+
+
+[tool.poetry.group.dev.dependencies]
+setuptools = "^75.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
