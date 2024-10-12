@@ -6,6 +6,40 @@ from itertools import pairwise
 DATA_FOLDER = "data"
 
 
+class SolutionTSP:
+    def __init__(self, tsp: 'TSP', nodes: list):
+        self.nodes = nodes
+        self.cost = tsp.calculate_total_additional_cost(nodes)
+        self.edge_length = tsp.calculate_total_edge_length(nodes)
+        self.objective_function = tsp.calculate_total_objective_function(nodes)
+
+    def nodes_in_excel_format(self) -> str:
+        return '\n'.join(map(str, self.nodes))
+
+    def __str__(self):
+        return '\n'.join((
+            '{',
+            f'cost: {self.cost}',
+            f'edge_length: {self.edge_length}',
+            f'objective_function: {self.objective_function}',
+            f'nodes: {self.nodes}',
+            '}'
+        ))
+
+    @staticmethod
+    def get_best_solution(solutions) -> 'SolutionTSP':
+        return min(solutions)
+
+    def __lt__(self, other: 'SolutionTSP'):
+        return self.objective_function < other.objective_function
+
+    def __eq__(self, other: 'SolutionTSP'):
+        return self.objective_function == other.objective_function
+
+    def __gt__(self, other: 'SolutionTSP'):
+        return self.objective_function > other.objective_function
+
+
 class TSP:
     def __init__(self, path: str):
         self.raw_data: DataFrame = read_csv(path, delimiter=';', header=None).rename(
@@ -39,6 +73,9 @@ class TSP:
 
     def get_required_number_of_nodes_in_solution(self) -> int:
         return ceil(len(self.raw_data) / 2).astype(int)
+
+    def calculate_solution(self, nodes) -> 'SolutionTSP':
+        return SolutionTSP(self, nodes)
 
     def calculate_total_additional_cost(self, nodes: list) -> int:
         return sum([self.additional_costs[node] for node in nodes])
