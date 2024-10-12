@@ -1,8 +1,9 @@
 from pandas import DataFrame, read_csv
-from numpy import zeros, ndarray, sqrt, round
+from numpy import zeros, ndarray, sqrt, round, ceil
+from itertools import pairwise
 
 
-DATA_FOLDER = "data/"
+DATA_FOLDER = "data"
 
 
 class TSP:
@@ -35,6 +36,24 @@ class TSP:
                     continue
                 total_move_costs[i][j] += self.additional_costs[j]
         return total_move_costs
+
+    def get_required_number_of_nodes_in_solution(self) -> int:
+        return ceil(len(self.raw_data) / 2).astype(int)
+
+    def calculate_total_additional_cost(self, nodes: list) -> int:
+        return sum([self.additional_costs[node] for node in nodes])
+
+    def calculate_total_edge_length(self, nodes: list) -> int:
+        edges = TSP.determine_edges(nodes)
+        return sum([self.distances_matrix[start][end] for start, end in edges])
+
+    def calculate_total_objective_function(self, nodes: list):
+        edges = TSP.determine_edges(nodes)
+        return sum([self.total_move_costs[start][end] for start, end in edges])
+
+    @staticmethod
+    def determine_edges(nodes: list) -> list:
+        return pairwise(nodes + [nodes[0]])
 
     @staticmethod
     def calculate_euclidean_distance(point1, point2):
