@@ -1,5 +1,6 @@
 from data_loader import TSP, SolutionTSP
 from random import sample
+from time import time
 
 
 def random_solve(tsp: TSP) -> SolutionTSP:
@@ -10,6 +11,9 @@ def random_solve(tsp: TSP) -> SolutionTSP:
 
 if __name__ == "__main__":
     tsp = TSP.load_tspa(data_folder='../data')
+    t0 = time()
     solution = random_solve(tsp)
+    t1 = time()
+    print(f'execution_time: {t1 - t0}')
     print(solution)
     print(solution.nodes_in_excel_format())

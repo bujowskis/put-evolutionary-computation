@@ -2,6 +2,7 @@ from pandas import DataFrame, read_csv
 from numpy import zeros, ndarray, sqrt, round, ceil
 from itertools import pairwise
 from typing import List
+from time import time
 
 
 DATA_FOLDER = "data"
@@ -47,8 +48,11 @@ class TSP:
             columns={0: 'x', 1: 'y', 2: 'additional_cost'})
         self.nodes: List[int] = [i for i in range(len(self.raw_data))]
         self.additional_costs: ndarray = self.calculate_additional_cost_array()
+        # note - distance is the same both sides, so could improve by doing only upper half
         self.distances_matrix: ndarray = self.calculate_distances_matrix()
         self.total_move_costs: ndarray = self.calculate_total_move_costs_matrix()
+        # note - distance is the same both sides, so could improve by doing only upper half
+        self.insertion_costs: ndarray = self.calculate_insertion_costs()
 
     def calculate_additional_cost_array(self) -> ndarray:
         return self.raw_data['additional_cost'].to_numpy()
@@ -72,6 +76,23 @@ class TSP:
                     continue
                 total_move_costs[i][j] += self.additional_costs[j]
         return total_move_costs
+
+    def calculate_insertion_costs(self) -> ndarray:
+        # [edge_start_node][edge_end_node][inserted_node]
+        insertion_costs = zeros((len(self.raw_data), len(self.raw_data), len(self.raw_data))).astype(int)
+        for start in range(len(self.raw_data)):
+            for end in range(len(self.raw_data)):
+                if start == end:
+                    continue
+                for inserted in range(len(self.raw_data)):
+                    if inserted == start or inserted == end:
+                        continue
+                    inserted_edge_cost = (self.distances_matrix[start][inserted] + self.distances_matrix[inserted][end]
+                                          + self.additional_costs[inserted])
+                    previous_edge_cost = self.distances_matrix[start][end]
+                    insertion_costs[start][end][inserted] = inserted_edge_cost - previous_edge_cost
+
+        return insertion_costs
 
     def get_required_number_of_nodes_in_solution(self) -> int:
         return ceil(len(self.raw_data) / 2).astype(int)
@@ -115,7 +136,10 @@ class TSP:
 
 
 if __name__ == "__main__":
+    t0 = time()
     tsp = TSP.load_tspa()
+    t1 = time()
+    print(f'execution_time: {t1 - t0}')
     print(tsp.raw_data.head())
     print(tsp.distances_matrix)
     print(tsp.additional_costs)
