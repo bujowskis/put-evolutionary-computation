@@ -4,6 +4,10 @@ from itertools import pairwise
 from typing import List
 from time import time
 
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+
 
 DATA_FOLDER = "data"
 
@@ -117,6 +121,51 @@ class TSP:
     def calculate_total_objective_function(self, nodes: list):
         edges = TSP.determine_edges(nodes)
         return sum([self.total_move_costs[start][end] for start, end in edges])
+
+    def visualize_solution(self, solution: 'SolutionTSP', method_name: str, path_to_save: str = None):
+        nodes = solution.nodes
+
+        x_coords = self.raw_data.loc[nodes, 'x'].to_numpy()
+        y_coords = self.raw_data.loc[nodes, 'y'].to_numpy()
+        additional_costs = self.raw_data.loc[nodes, 'additional_cost'].to_numpy()
+
+        cmap = plt.cm.viridis
+
+        x_coords_all = self.raw_data['x'].to_numpy()
+        y_coords_all = self.raw_data['y'].to_numpy()
+        additional_costs_all = self.raw_data['additional_cost'].to_numpy()
+
+        all_additional_costs = np.concatenate((additional_costs_all, additional_costs))
+        normalize_costs = mcolors.Normalize(vmin=all_additional_costs.min(), vmax=all_additional_costs.max())
+
+        fig, ax = plt.subplots(figsize=(15, 12))
+        for i in range(len(x_coords_all)):
+            ax.plot(x_coords_all[i], y_coords_all[i], "o", markersize=10,
+                    color=cmap(normalize_costs(additional_costs_all[i])), zorder=1)
+
+        for i in range(len(x_coords)):
+            ax.plot(x_coords[i], y_coords[i], "o", markersize=12, color=cmap(normalize_costs(additional_costs[i])),
+                    zorder=2)
+
+        for i, j in pairwise(nodes + [nodes[0]]):
+            x_start, y_start = self.raw_data.loc[i, 'x'], self.raw_data.loc[i, 'y']
+            x_end, y_end = self.raw_data.loc[j, 'x'], self.raw_data.loc[j, 'y']
+            ax.plot((x_start, x_end), (y_start, y_end), "-", color='#36454f', zorder=1)
+
+        gradient = np.linspace(0, 1, 256).reshape(-1, 1)
+        axins = ax.inset_axes([1.05, 0.1, 0.05, 0.6], transform=ax.transAxes)
+        axins.imshow(gradient, aspect='auto', cmap=cmap, origin='lower',
+                     extent=[0, 1, additional_costs.min(), additional_costs.max()])
+        axins.xaxis.set_visible(False)
+
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.title(f'TSP Solution: {method_name}')
+
+        if path_to_save:
+            plt.savefig(path_to_save)
+        else:
+            plt.show()
 
     @staticmethod
     def determine_edges(nodes: list) -> list:
