@@ -144,3 +144,4 @@ if __name__ == "__main__":
     print(tsp.distances_matrix)
     print(tsp.additional_costs)
     print(tsp.total_move_costs)
+    print(tsp.insertion_costs)
