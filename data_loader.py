@@ -1,6 +1,7 @@
 from pandas import DataFrame, read_csv
 from numpy import zeros, ndarray, sqrt, round, ceil
 from itertools import pairwise
+from typing import List
 
 
 DATA_FOLDER = "data"
@@ -44,6 +45,7 @@ class TSP:
     def __init__(self, path: str):
         self.raw_data: DataFrame = read_csv(path, delimiter=';', header=None).rename(
             columns={0: 'x', 1: 'y', 2: 'additional_cost'})
+        self.nodes: List[int] = [i for i in range(len(self.raw_data))]
         self.additional_costs: ndarray = self.calculate_additional_cost_array()
         self.distances_matrix: ndarray = self.calculate_distances_matrix()
         self.total_move_costs: ndarray = self.calculate_total_move_costs_matrix()
@@ -73,6 +75,13 @@ class TSP:
 
     def get_required_number_of_nodes_in_solution(self) -> int:
         return ceil(len(self.raw_data) / 2).astype(int)
+
+    def get_nodes(self, without_nodes: List[int] = None):
+        nodes = self.nodes.copy()
+        if without_nodes:
+            for unwanted_node in without_nodes:
+                nodes.remove(unwanted_node)
+        return nodes
 
     def calculate_solution(self, nodes) -> 'SolutionTSP':
         return SolutionTSP(self, nodes)
