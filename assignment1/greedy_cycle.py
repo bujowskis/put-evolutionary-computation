@@ -1,15 +1,14 @@
 from data_loader import TSP, SolutionTSP
-from random import sample
+from random import choice
 from itertools import pairwise
-from typing import List
 from time import time
 
 
-def greedy_cycle_solve(tsp: TSP, starting_nodes: List[int] = None) -> SolutionTSP:
-    if starting_nodes is None:
-        starting_nodes = sample(tsp.nodes, 2)
+def greedy_cycle_solve(tsp: TSP, starting_node: int = None) -> SolutionTSP:
+    if starting_node is None:
+        starting_node = choice(tsp.nodes)
 
-    chosen_nodes = starting_nodes
+    chosen_nodes = [starting_node]
     remaining_nodes = tsp.get_nodes(without_nodes=chosen_nodes)
 
     # todo - into TSP? (pass remaining nodes?)

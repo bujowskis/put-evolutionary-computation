@@ -86,10 +86,16 @@ class TSP:
         insertion_costs = zeros((len(self.raw_data), len(self.raw_data), len(self.raw_data))).astype(int)
         for start in range(len(self.raw_data)):
             for end in range(len(self.raw_data)):
-                if start == end:
-                    continue
                 for inserted in range(len(self.raw_data)):
                     if inserted == start or inserted == end:
+                        continue
+                    if start == end:
+                        # "inserting node between itself" - i.e. forming cycle by appending 1 node to just 1 node
+                        # e.g. in greedy cycle method, at start
+                        insertion_costs[start][end][inserted] = (
+                                self.distances_matrix[start][inserted] + self.distances_matrix[inserted][end]
+                                + self.additional_costs[inserted])
+                        # no previous edge cost
                         continue
                     inserted_edge_cost = (self.distances_matrix[start][inserted] + self.distances_matrix[inserted][end]
                                           + self.additional_costs[inserted])
