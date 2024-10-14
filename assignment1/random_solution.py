@@ -19,3 +19,4 @@ if __name__ == "__main__":
     print(f'execution_time: {t1 - t0}')
     print(solution)
     print(solution.nodes_in_excel_format())
+    tsp.visualize_solution(solution, 'random')

@@ -163,53 +163,12 @@ class TSP:
         axins.imshow(gradient, aspect='auto', cmap=cmap, origin='lower',
                      extent=[0, 1, additional_costs.min(), additional_costs.max()])
         axins.xaxis.set_visible(False)
+        axins.set_ylabel('Cost', fontsize=12)
 
         plt.xlabel('x')
         plt.ylabel('y')
         plt.title(f'TSP Solution: {method_name}')
 
-        if path_to_save:
-            plt.savefig(path_to_save)
-        else:
-            plt.show()
-
-    def visualize_solution3d(self, solution: 'SolutionTSP', method_name: str, path_to_save: str = None):
-        nodes = solution.nodes
-
-        x_coords = self.raw_data.loc[nodes, 'x'].to_numpy()
-        y_coords = self.raw_data.loc[nodes, 'y'].to_numpy()
-        additional_costs = self.raw_data.loc[nodes, 'additional_cost'].to_numpy()
-
-        # Full set of nodes for reference
-        x_coords_all = self.raw_data['x'].to_numpy()
-        y_coords_all = self.raw_data['y'].to_numpy()
-        additional_costs_all = self.raw_data['additional_cost'].to_numpy()
-
-        fig = plt.figure(figsize=(12, 10))
-        ax = fig.add_subplot(111, projection='3d')
-
-        # Plot all nodes in 3D, using additional cost as the z-axis
-        ax.scatter(x_coords_all, y_coords_all, additional_costs_all, c='skyblue', s=30, label='All Nodes', alpha=0.6)
-
-        # Plot solution nodes in 3D
-        ax.scatter(x_coords, y_coords, additional_costs, c='red', s=60, label='Solution Nodes', alpha=1.0)
-
-        # Plot the connections between the nodes in the solution
-        for i, j in pairwise(nodes + [nodes[0]]):  # Cycle back to the first node
-            x_start, y_start, z_start = self.raw_data.loc[i, ['x', 'y', 'additional_cost']]
-            x_end, y_end, z_end = self.raw_data.loc[j, ['x', 'y', 'additional_cost']]
-            ax.plot([x_start, x_end], [y_start, y_end], [z_start, z_end], color='black', alpha=0.7)
-
-        # Add labels and titles
-        ax.set_xlabel('X Coordinate')
-        ax.set_ylabel('Y Coordinate')
-        ax.set_zlabel('Additional Cost')
-        ax.set_title(f'TSP Solution (3D): {method_name}')
-
-        # Show legend
-        ax.legend()
-
-        # Save the plot or show it
         if path_to_save:
             plt.savefig(path_to_save)
         else:
