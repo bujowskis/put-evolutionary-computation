@@ -5,12 +5,10 @@ from time import time
 from typing import List
 
 
-
-
 INF = 10**18
 
 
-def greedy_2_regret_solve(tsp: TSP, starting_node: int = None) -> SolutionTSP:
+def greedy_2_regret_weighted_objective_solve(tsp: TSP, starting_node: int = None) -> SolutionTSP:
     if starting_node is None:
         starting_node = choice(tsp.nodes)
 
@@ -47,6 +45,9 @@ def greedy_2_regret_solve(tsp: TSP, starting_node: int = None) -> SolutionTSP:
                 smallest_move_cost_node_from_current, smallest_move_cost_from_current =\
                     get_smallest_move_cost_node_between(start2, end2, remaining_nodes_after_1_choice)
                 smallest_move_cost_from_current += next_node_cost
+                # + weighted sum part
+                smallest_move_cost_from_current += next_node_cost
+                smallest_move_cost_from_current /= 2
 
                 if smallest_move_cost_from_current < best_choice_2_ahead_between_from_current[1][1]:
                     best_choice_2_ahead_between_from_current =\
@@ -66,9 +67,9 @@ def greedy_2_regret_solve(tsp: TSP, starting_node: int = None) -> SolutionTSP:
 if __name__ == "__main__":
     tsp = TSP.load_tspa(data_folder='../data')
     t0 = time()
-    solution = greedy_2_regret_solve(tsp, starting_node=0)
+    solution = greedy_2_regret_weighted_objective_solve(tsp, starting_node=0)
     t1 = time()
     print(f'execution_time: {t1 - t0}')
     print(solution)
     print(solution.nodes_in_excel_format())
-    tsp.visualize_solution(solution, 'greedy 2-regret')
+    tsp.visualize_solution(solution, 'greedy 2-regret weighted objective')
