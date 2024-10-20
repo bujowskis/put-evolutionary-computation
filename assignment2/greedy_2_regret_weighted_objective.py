@@ -4,7 +4,6 @@ from itertools import pairwise
 from time import time
 from typing import List
 
-
 INF = 10**18
 
 
