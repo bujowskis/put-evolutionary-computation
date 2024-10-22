@@ -1,5 +1,5 @@
-from assignment2.greedy_2_regret_variation import greedy_2_regret_variation_solve
-from assignment2.greedy_2_regret_weighted_objective_variation import greedy_2_regret_weighted_objective_variation_solve
+from assignment2.greedy_2_regret import greedy_2_regret_solve
+from assignment2.greedy_2_regret_weighted_objective import greedy_2_regret_weighted_objective_solve
 from data_loader import TSP
 
 from time import time
@@ -22,7 +22,7 @@ if __name__ == '__main__':
         times = []
         for i in range(len(tsp.nodes)):
             t0 = time()
-            solution = greedy_2_regret_variation_solve(tsp, starting_node=i)
+            solution = greedy_2_regret_solve(tsp, starting_node=i)
             t1 = time()
             solutions.append(solution)
             times.append(t1 - t0)
@@ -33,14 +33,14 @@ if __name__ == '__main__':
         best = min(solutions)
         worst = max(solutions)
 
-        print('greedy 2-regret variation')
+        print('greedy 2-regret')
         print(best)
         print(best.nodes_in_excel_format())
 
-        with open(f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/pkl/{problem_name}-greedy-2-regret-variation-best.pkl', 'wb') as file:
+        with open(f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/pkl/{problem_name}-greedy-2-regret-best.pkl', 'wb') as file:
             pickle.dump(best, file)
 
-        with open(f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/json/{problem_name}-greedy-2-regret-variation-best.json', 'w') as json_file:
+        with open(f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/json/{problem_name}-greedy-2-regret-best.json', 'w') as json_file:
             json.dump({
                 'min_objective_function': best.objective_function,
                 'max_objective_function': worst.objective_function,
@@ -52,15 +52,15 @@ if __name__ == '__main__':
             }, json_file, indent=4, default=lambda x: int(x) if isinstance(x, numpy.int64) else x)
 
         tsp.visualize_solution(
-            best, method_name=f'{problem_name} greedy 2-regret variation',
-            path_to_save=f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/png/{problem_name}-greedy-2-regret-variation-best.png')
+            best, method_name=f'{problem_name} greedy 2-regret',
+            path_to_save=f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/png/{problem_name}-greedy-2-regret-best.png')
 
     for problem_name, tsp in problems.items():
         solutions = []
         times = []
         for i in range(len(tsp.nodes)):
             t0 = time()
-            solution = greedy_2_regret_weighted_objective_variation_solve(tsp, starting_node=i)
+            solution = greedy_2_regret_weighted_objective_solve(tsp, starting_node=i)
             t1 = time()
             solutions.append(solution)
             times.append(t1 - t0)
@@ -71,14 +71,14 @@ if __name__ == '__main__':
         best = min(solutions)
         worst = max(solutions)
 
-        print('greedy-2-regret-weighted-variation')
+        print('greedy-2-regret-weighted')
         print(best)
         print(best.nodes_in_excel_format())
 
-        with open(f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/pkl/{problem_name}-greedy-2-regret-weighted-variation-best.pkl', 'wb') as file:
+        with open(f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/pkl/{problem_name}-greedy-2-regret-weighted-best.pkl', 'wb') as file:
             pickle.dump(best, file)
 
-        with open(f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/json/{problem_name}-greedy-2-regret-weighted-variation-best.json', 'w') as json_file:
+        with open(f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/json/{problem_name}-greedy-2-regret-weighted-best.json', 'w') as json_file:
             json.dump({
                 'min_objective_function': best.objective_function,
                 'max_objective_function': worst.objective_function,
@@ -90,8 +90,8 @@ if __name__ == '__main__':
             }, json_file, indent=4, default=lambda x: int(x) if isinstance(x, numpy.int64) else x)
 
         tsp.visualize_solution(
-            best, method_name=f'{problem_name} greedy 2-regret weighted obj variation',
-            path_to_save=f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/png/{problem_name}-greedy-2-regret-weighted-variation-best.png')
+            best, method_name=f'{problem_name} greedy 2-regret weighted obj',
+            path_to_save=f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/png/{problem_name}-greedy-2-regret-weighted-best.png')
 
     t_end = time()
     print(f'duration of whole experiment: {t_end - t_start}')
