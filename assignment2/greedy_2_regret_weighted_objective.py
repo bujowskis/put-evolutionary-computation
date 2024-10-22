@@ -37,7 +37,7 @@ def greedy_2_regret_weighted_objective_solve(tsp: TSP, starting_node: int = None
             regret = best_2nd_move_cost - best_1st_move_cost
             best_1st_move_node_insertion_cost, best_1st_move_node_insertion_place =\
                 best_insertion_places[remaining_nodes.index(best_1st_move_node)]
-            weighted_objective = (regret + best_1st_move_node_insertion_cost) / 2
+            weighted_objective = (regret - best_1st_move_node_insertion_cost) / 2  # "-" because then we maximize
             if weighted_objective > highest_weighted_objective[0]:
                 highest_weighted_objective = (weighted_objective, best_1st_move_node,
                                               best_1st_move_node_insertion_place)
