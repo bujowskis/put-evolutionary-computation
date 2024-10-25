@@ -7,7 +7,7 @@ from time import time
 
 from assignment1.random_solution import random_solve
 from assignment1.nearest_neighbor_at_any import nearest_neighbor_at_any_solve
-from local_search_types import (
+from assignment3.local_search_types import (
     LocalSearchType,
     StartingSolutionType,
     IntraRouteMovesType,
