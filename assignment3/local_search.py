@@ -270,31 +270,6 @@ ___         _____
             case _:
                 raise Exception('no such local_search_type')
 
-# - here heapq of best moves may actually be goat
-#   - initialize based on starting cycle
-#   - pop, make move, add resulting moves
-#       - when popping, check if move is "still viable" -> no need to worry about removing from queue
-
-# - type of LS:
-#   - steepest - best change in objective function
-#       -
-#   - greedy - first improving move
-#       - NEIGHBORHOOD BROWSED IN RANDOM(IZED) ORDER
-#       todo - describe kind of randomization in report
-# - type of neighborhood:      NOTE - BOTH IN BOTH LS
-#   - intra-route moves - change order of nodes within same set of selected nodes; types:
-#       - two-nodes exchange
-#       - two-edges exchange
-#   - inter-route moves - exchange two nodes (nodes-exchange) - one selected, one not selected
-# - type of starting solutions:
-#   - random
-#   - best greedy (nn-any)
-
-# - configs to run:
-#   - start - (random start / start from each node)
-#   - type of LS - (steepest / greedy)
-#   - intra-route moves two-(nodes / edges) exchange
-
 
 if __name__ == "__main__":
     tsp = TSP.load_tspa(data_folder='../data')
