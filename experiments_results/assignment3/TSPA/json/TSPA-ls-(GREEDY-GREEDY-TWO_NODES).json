@@ -1,7 +1,7 @@
 {
     "min_objective_function": 71179,
-    "max_objective_function": 80226,
-    "avg_objective_function": 73981.76,
+    "max_objective_function": 74942,
+    "avg_objective_function": 72977.67,
     "best_solution_nodes": [
         68,
         46,
@@ -104,34 +104,34 @@
         117,
         93
     ],
-    "min_time": 0.23321270942687988,
-    "max_time": 0.42220115661621094,
-    "avg_time": 0.2978213262557983,
+    "min_time": 0.1679532527923584,
+    "max_time": 0.20375943183898926,
+    "avg_time": 0.17633584380149842,
     "ls_stats_min": {
         "total_moves": 0.0,
         "inter_nodes_exchanges_count": 0.0,
         "intra_two_nodes_count": 0.0,
         "intra_two_edges_count": 0.0,
-        "inter_nodes_exchanges_percentage": 0.0,
+        "inter_nodes_exchanges_percentage": 0.25,
         "intra_two_nodes_percentage": 0.0,
         "intra_two_edges_percentage": 0.0
     },
     "ls_stats_max": {
-        "total_moves": 7.0,
-        "inter_nodes_exchanges_count": 4.0,
+        "total_moves": 9.0,
+        "inter_nodes_exchanges_count": 5.0,
         "intra_two_nodes_count": 4.0,
         "intra_two_edges_count": 0.0,
-        "inter_nodes_exchanges_percentage": 0.75,
+        "inter_nodes_exchanges_percentage": 1.0,
         "intra_two_nodes_percentage": 0.75,
         "intra_two_edges_percentage": 0.0
     },
     "ls_stats_avg": {
-        "total_moves": 1.82,
-        "inter_nodes_exchanges_count": 0.925,
-        "intra_two_nodes_count": 0.895,
+        "total_moves": 1.42,
+        "inter_nodes_exchanges_count": 1.11,
+        "intra_two_nodes_count": 0.31,
         "intra_two_edges_count": 0.0,
-        "inter_nodes_exchanges_percentage": 0.3041,
-        "intra_two_nodes_percentage": 0.2909,
+        "inter_nodes_exchanges_percentage": 0.84109243697479,
+        "intra_two_nodes_percentage": 0.1589075630252101,
         "intra_two_edges_percentage": 0.0
     }
 }

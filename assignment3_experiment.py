@@ -23,9 +23,10 @@ if __name__ == '__main__':
     print('(data loaded)')
     run, total_time = 1, 0
 
-    config_combinations = list(product(LocalSearchType, StartingSolutionType, IntraRouteMovesType))
+    config_combinations = list(product(LocalSearchType, StartingSolutionType))
+    intra_route_move_type = IntraRouteMovesType.TWO_NODES
 
-    for local_search_type, starting_solution_type, intra_route_move_type in config_combinations:
+    for local_search_type, starting_solution_type in config_combinations:
         lst, sst, irmt = str(local_search_type).split('.')[1], str(starting_solution_type).split('.')[1], str(intra_route_move_type).split('.')[1]
         short_readable_config = f'({", ".join([lst, sst, irmt])})'
         short_file_config = f'({"-".join([lst, sst, irmt])})'
