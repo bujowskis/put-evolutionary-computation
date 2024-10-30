@@ -23,10 +23,9 @@ if __name__ == '__main__':
     print('(data loaded)')
     run, total_time = 1, 0
 
-    config_combinations = list(product(LocalSearchType, StartingSolutionType))
-    intra_route_move_type = IntraRouteMovesType.TWO_NODES
+    config_combinations = list(product(LocalSearchType, StartingSolutionType, IntraRouteMovesType))
 
-    for local_search_type, starting_solution_type in config_combinations:
+    for local_search_type, starting_solution_type, intra_route_move_type in config_combinations:
         lst, sst, irmt = str(local_search_type).split('.')[1], str(starting_solution_type).split('.')[1], str(intra_route_move_type).split('.')[1]
         short_readable_config = f'({", ".join([lst, sst, irmt])})'
         short_file_config = f'({"-".join([lst, sst, irmt])})'
@@ -54,7 +53,6 @@ if __name__ == '__main__':
 
             print(f'Local Search {short_readable_config}')
             print(best)
-            #print(best.nodes_in_excel_format())
 
             with open(f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/pkl/{problem_name}-ls-{short_file_config}-best.pkl', 'wb') as file:
                 pickle.dump(best, file)

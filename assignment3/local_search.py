@@ -29,8 +29,6 @@ def local_search_solve(
                        starting_node=starting_node).solve()
 
 
-# todo - fixup not evaluating all in greedy (only after it's randomly chosen)
-
 class LocalSearch:
     def __init__(self, tsp: TSP,
                  local_search_type: LocalSearchType = LocalSearchType.STEEPEST,
@@ -62,7 +60,7 @@ class LocalSearch:
         self.inter_nodes_exchanges_count: int = 0
         self.intra_two_nodes_count: int = 0
         self.intra_two_edges_count: int = 0
-        self.moves_considered_count: int = 0
+        self.moves_evaluated_count: int = 0
 
     def solve(self) -> tuple[SolutionTSP, dict]:
         self.initialize_moves()
@@ -73,6 +71,7 @@ class LocalSearch:
 
         return self.tsp.calculate_solution(self.cycle), {
             'total_moves': total_moves,
+            'moves_evaluated': self.moves_evaluated_count,
             'inter_nodes_exchanges_count': self.inter_nodes_exchanges_count,
             'intra_two_nodes_count': self.intra_two_nodes_count,
             'intra_two_edges_count': self.intra_two_edges_count,
@@ -82,15 +81,20 @@ class LocalSearch:
         }
 
     def add_move_if_improves(self, move: Tuple[int, MoveType, Tuple]):
+        self.moves_evaluated_count += 1
         objective_change, move_type, move_specification = move
         if objective_change >= 0:
             return
-        move_on_queue = (objective_change, self.moves_considered_count, move_type, move_specification)
+        move_on_queue = (objective_change, self.moves_evaluated_count, move_type, move_specification)
         if self.local_search_type.STEEPEST:
             heapq.heappush(self.moves, move_on_queue)
         else:
             self.moves.append(move_on_queue)
-        self.moves_considered_count += 1
+
+    def add_move_without_evaluation(self, move: Tuple[int, MoveType, Tuple]):
+        objective_change, move_type, move_specification = move
+        move_on_queue = (objective_change, self.moves_evaluated_count, move_type, move_specification)
+        self.moves.append(move_on_queue)
 
     def get_connected_nodes(self, node: int):
         place_in_cycle = self.cycle.index(node)
@@ -127,6 +131,11 @@ class LocalSearch:
                 # check if still valid
                 if (old_node in self.cycle) and (new_node not in self.cycle) and \
                    (move_neighbors == current_neighbors):
+                    if self.local_search_type == LocalSearchType.GREEDY:
+                        objective_change = self.calculate_inter_nodes_move_objective_change(old_node, new_node, move_neighbors)
+                        self.moves_evaluated_count += 1
+                        if objective_change >= 0:
+                            return
                     # make move
                     exchange_idx = self.cycle.index(old_node)
                     self.cycle[exchange_idx] = new_node
@@ -160,6 +169,11 @@ class LocalSearch:
                 # check if still valid
                 if (node1 in self.cycle) and (node2 in self.cycle) and \
                    (node1_neighbors == current_node1_neighbors) and (node2_neighbors == current_node2_neighbors):
+                    if self.local_search_type == LocalSearchType.GREEDY:
+                        objective_change = self.calculate_intra_nodes_objective_change(node1, node1_neighbors, node2, node2_neighbors)
+                        self.moves_evaluated_count += 1
+                        if objective_change >= 0:
+                            return
                     # make move
                     node1_idx, node2_idx = self.cycle.index(node1), self.cycle.index(node2)
                     self.cycle[node1_idx], self.cycle[node2_idx] = node2, node1
@@ -195,6 +209,11 @@ class LocalSearch:
                 cycle_edges = list(pairwise(self.cycle + [self.cycle[-1]]))
                 # check if still valid
                 if (edge1_nodes in cycle_edges) and (edge2_nodes in cycle_edges):
+                    if self.local_search_type == LocalSearchType.GREEDY:
+                        objective_change = self.calculate_intra_edges_objective_change(edge1_nodes, edge2_nodes)
+                        self.moves_evaluated_count += 1
+                        if objective_change >= 0:
+                            return
                     # make move
                     edge1_idx, edge2_idx = self.cycle.index(edge1_nodes[0]), self.cycle.index(edge2_nodes[0])
                     if edge1_idx < edge2_idx:
@@ -217,7 +236,7 @@ class LocalSearch:
                     self.moves = []
                     self.initialize_moves()
 
-    def add_intra_nodes(self, node1, node1_neighbors, node2, node2_neighbors):
+    def calculate_intra_nodes_objective_change(self, node1, node1_neighbors, node2, node2_neighbors) -> int:
         # ..., node1_neighbors[0], node1, node2, node2_neighbors[1]
         # 1                - n1n[0]_n1   - n1_n2
         # 2                              - n1_n2 (2x!) - n2_n2n[1]
@@ -228,17 +247,12 @@ class LocalSearch:
         # correct = - n1n[0]_n1 - n1_n2 - n2_n2n[1]
         #           + n1n[0]_n2 + n2_n1 + n1_n2n[1]
         if node1 == node2_neighbors[0]:
-            objective_change = - self.tsp.distances_matrix[node1_neighbors[0]][node1] \
-                               - self.tsp.distances_matrix[node1][node2] \
-                               - self.tsp.distances_matrix[node2][node2_neighbors[1]] \
-                               + self.tsp.distances_matrix[node1_neighbors[0]][node2] \
-                               + self.tsp.distances_matrix[node2][node1] \
-                               + self.tsp.distances_matrix[node1][node2_neighbors[1]]
-            self.add_move_if_improves((
-                objective_change, MoveType.INTRA_TWO_NODES,
-                (node1, node2, node1_neighbors, node2_neighbors)
-            ))
-            return
+            return - self.tsp.distances_matrix[node1_neighbors[0]][node1] \
+                   - self.tsp.distances_matrix[node1][node2] \
+                   - self.tsp.distances_matrix[node2][node2_neighbors[1]] \
+                   + self.tsp.distances_matrix[node1_neighbors[0]][node2] \
+                   + self.tsp.distances_matrix[node2][node1] \
+                   + self.tsp.distances_matrix[node1][node2_neighbors[1]]
         # ..., node2_neighbors[0], node2, node1, node1_neighbors[1]
         # 1                - n2n[0]_n2   - n2_n1
         # 2                              - n2_n1 (2x!) - n1_n1n[1]
@@ -248,30 +262,40 @@ class LocalSearch:
         # correct = - n2n[0]_n2 - n2_n1 - n1_n1n[1]
         #           + n2n[0]_n1 + n1_n2 + n2_n1n[1]
         if node2 == node1_neighbors[0]:
-            objective_change = - self.tsp.distances_matrix[node2_neighbors[0]][node2] \
-                               - self.tsp.distances_matrix[node2][node1] \
-                               - self.tsp.distances_matrix[node1][node1_neighbors[1]] \
-                               + self.tsp.distances_matrix[node2_neighbors[0]][node1] \
-                               + self.tsp.distances_matrix[node1][node2] \
-                               + self.tsp.distances_matrix[node2][node1_neighbors[1]]
+            return - self.tsp.distances_matrix[node2_neighbors[0]][node2] \
+                   - self.tsp.distances_matrix[node2][node1] \
+                   - self.tsp.distances_matrix[node1][node1_neighbors[1]] \
+                   + self.tsp.distances_matrix[node2_neighbors[0]][node1] \
+                   + self.tsp.distances_matrix[node1][node2] \
+                   + self.tsp.distances_matrix[node2][node1_neighbors[1]]
+
+        return - (self.tsp.distances_matrix[node1_neighbors[0]][node1] +
+                  self.tsp.distances_matrix[node1][node1_neighbors[1]]) \
+               - (self.tsp.distances_matrix[node2_neighbors[0]][node2] +
+                  self.tsp.distances_matrix[node2][node2_neighbors[1]]) \
+               + (self.tsp.distances_matrix[node1_neighbors[0]][node2] +
+                  self.tsp.distances_matrix[node2][node1_neighbors[1]]) \
+               + (self.tsp.distances_matrix[node2_neighbors[0]][node1] +
+                  self.tsp.distances_matrix[node1][node2_neighbors[1]])
+
+    def add_intra_nodes(self, node1, node1_neighbors, node2, node2_neighbors):
+        if self.local_search_type == LocalSearchType.STEEPEST:
+            objective_change = self.calculate_intra_nodes_objective_change(node1, node1_neighbors, node2, node2_neighbors)
             self.add_move_if_improves((
                 objective_change, MoveType.INTRA_TWO_NODES,
                 (node1, node2, node1_neighbors, node2_neighbors)
             ))
-            return
+        else:
+            self.add_move_without_evaluation((
+                0, MoveType.INTRA_TWO_NODES,
+                (node1, node2, node1_neighbors, node2_neighbors)
+            ))
 
-        objective_change = - (self.tsp.distances_matrix[node1_neighbors[0]][node1] +
-                              self.tsp.distances_matrix[node1][node1_neighbors[1]]) \
-                           - (self.tsp.distances_matrix[node2_neighbors[0]][node2] +
-                              self.tsp.distances_matrix[node2][node2_neighbors[1]]) \
-                           + (self.tsp.distances_matrix[node1_neighbors[0]][node2] +
-                              self.tsp.distances_matrix[node2][node1_neighbors[1]]) \
-                           + (self.tsp.distances_matrix[node2_neighbors[0]][node1] +
-                              self.tsp.distances_matrix[node1][node2_neighbors[1]])
-        self.add_move_if_improves((
-            objective_change, MoveType.INTRA_TWO_NODES,
-            (node1, node2, node1_neighbors, node2_neighbors)
-        ))
+    def calculate_intra_edges_objective_change(self, edge1_nodes, edge2_nodes) -> int:
+        return - self.tsp.distances_matrix[edge1_nodes[0]][edge1_nodes[1]] \
+               - self.tsp.distances_matrix[edge2_nodes[0]][edge2_nodes[1]] \
+               + self.tsp.distances_matrix[edge1_nodes[0]][edge2_nodes[0]] \
+               + self.tsp.distances_matrix[edge1_nodes[1]][edge2_nodes[1]]
 
     def add_intra_edges(self, edge1_nodes, edge2_nodes):
         """
@@ -282,27 +306,40 @@ class LocalSearch:
         _______
         ^reversed
         """
-        objective_change = - self.tsp.distances_matrix[edge1_nodes[0]][edge1_nodes[1]] \
-                           - self.tsp.distances_matrix[edge2_nodes[0]][edge2_nodes[1]] \
-                           + self.tsp.distances_matrix[edge1_nodes[0]][edge2_nodes[0]] \
-                           + self.tsp.distances_matrix[edge1_nodes[1]][edge2_nodes[1]]
-        self.add_move_if_improves((
-            objective_change, MoveType.INTRA_TWO_EDGES,
-            (edge1_nodes, edge2_nodes)
-        ))
+        if self.local_search_type == LocalSearchType.STEEPEST:
+            objective_change = self.calculate_intra_edges_objective_change(edge1_nodes, edge2_nodes)
+            self.add_move_if_improves((
+                objective_change, MoveType.INTRA_TWO_EDGES,
+                (edge1_nodes, edge2_nodes)
+            ))
+        else:
+            self.add_move_without_evaluation((
+                0, MoveType.INTRA_TWO_EDGES,
+                (edge1_nodes, edge2_nodes)
+            ))
+
+    def calculate_inter_nodes_move_objective_change(
+            self, node_in_cycle: int, non_cycle_node: int, neighbors: tuple[int, int]) -> int:
+        return - (self.tsp.additional_costs[node_in_cycle] +
+                  self.tsp.distances_matrix[neighbors[0]][node_in_cycle] +
+                  self.tsp.distances_matrix[node_in_cycle][neighbors[1]]) \
+               + (self.tsp.additional_costs[non_cycle_node] +
+                  self.tsp.distances_matrix[neighbors[0]][non_cycle_node] +
+                  self.tsp.distances_matrix[non_cycle_node][neighbors[1]])
 
     def add_inter_nodes_moves(self, node_in_cycle: int, neighbors: tuple[int, int]):
         for non_cycle_node in self.not_selected_nodes:
-            objective_change = - (self.tsp.additional_costs[node_in_cycle] +
-                                  self.tsp.distances_matrix[neighbors[0]][node_in_cycle] +
-                                  self.tsp.distances_matrix[node_in_cycle][neighbors[1]]) \
-                               + (self.tsp.additional_costs[non_cycle_node] +
-                                  self.tsp.distances_matrix[neighbors[0]][non_cycle_node] +
-                                  self.tsp.distances_matrix[non_cycle_node][neighbors[1]])
-            self.add_move_if_improves((
-                objective_change, MoveType.INTER_NODES_EXCHANGE,
-                (node_in_cycle, non_cycle_node, neighbors)
-            ))
+            if self.local_search_type == LocalSearchType.STEEPEST:
+                objective_change = self.calculate_inter_nodes_move_objective_change(node_in_cycle, non_cycle_node, neighbors)
+                self.add_move_if_improves((
+                    objective_change, MoveType.INTER_NODES_EXCHANGE,
+                    (node_in_cycle, non_cycle_node, neighbors)
+                ))
+            else:
+                self.add_move_without_evaluation((
+                    0, MoveType.INTER_NODES_EXCHANGE,
+                    (node_in_cycle, non_cycle_node, neighbors)
+                ))
 
     def get_move(self) -> Tuple[int, MoveType, Tuple]:
         match self.local_search_type:

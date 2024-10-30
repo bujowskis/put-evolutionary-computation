@@ -1,7 +1,7 @@
 {
     "min_objective_function": 44392,
-    "max_objective_function": 52537,
-    "avg_objective_function": 45750.275,
+    "max_objective_function": 52452,
+    "avg_objective_function": 45749.62,
     "best_solution_nodes": [
         40,
         107,
@@ -104,34 +104,37 @@
         51,
         133
     ],
-    "min_time": 0.17194628715515137,
-    "max_time": 0.19501566886901855,
-    "avg_time": 0.1780856132507324,
+    "min_time": 0.20864200592041016,
+    "max_time": 0.3786129951477051,
+    "avg_time": 0.23340081810951233,
     "ls_stats_min": {
         "total_moves": 0.0,
+        "moves_evaluated": 9370.0,
         "inter_nodes_exchanges_count": 0.0,
         "intra_two_nodes_count": 0.0,
         "intra_two_edges_count": 0.0,
-        "inter_nodes_exchanges_percentage": 0.33,
+        "inter_nodes_exchanges_percentage": 0.17,
         "intra_two_nodes_percentage": 0.0,
         "intra_two_edges_percentage": 0.0
     },
     "ls_stats_max": {
-        "total_moves": 10.0,
-        "inter_nodes_exchanges_count": 10.0,
-        "intra_two_nodes_count": 3.0,
+        "total_moves": 8.0,
+        "moves_evaluated": 10517.0,
+        "inter_nodes_exchanges_count": 8.0,
+        "intra_two_nodes_count": 5.0,
         "intra_two_edges_count": 0.0,
         "inter_nodes_exchanges_percentage": 1.0,
-        "intra_two_nodes_percentage": 0.67,
+        "intra_two_nodes_percentage": 0.83,
         "intra_two_edges_percentage": 0.0
     },
     "ls_stats_avg": {
-        "total_moves": 1.215,
-        "inter_nodes_exchanges_count": 1.09,
-        "intra_two_nodes_count": 0.125,
+        "total_moves": 1.23,
+        "moves_evaluated": 9999.355,
+        "inter_nodes_exchanges_count": 1.1,
+        "intra_two_nodes_count": 0.13,
         "intra_two_edges_count": 0.0,
-        "inter_nodes_exchanges_percentage": 0.9268376068376069,
-        "intra_two_nodes_percentage": 0.07316239316239316,
+        "inter_nodes_exchanges_percentage": 0.9374358974358975,
+        "intra_two_nodes_percentage": 0.06256410256410257,
         "intra_two_edges_percentage": 0.0
     }
 }

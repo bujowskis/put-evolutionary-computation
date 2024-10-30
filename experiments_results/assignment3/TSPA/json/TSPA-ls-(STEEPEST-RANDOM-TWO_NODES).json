@@ -104,11 +104,12 @@
         160,
         184
     ],
-    "min_time": 0.07851219177246094,
-    "max_time": 0.14218950271606445,
-    "avg_time": 0.09995160222053528,
+    "min_time": 0.08509707450866699,
+    "max_time": 0.30761122703552246,
+    "avg_time": 0.12697454214096068,
     "ls_stats_min": {
         "total_moves": 91.0,
+        "moves_evaluated": 42121.0,
         "inter_nodes_exchanges_count": 45.0,
         "intra_two_nodes_count": 46.0,
         "intra_two_edges_count": 0.0,
@@ -118,6 +119,7 @@
     },
     "ls_stats_max": {
         "total_moves": 183.0,
+        "moves_evaluated": 75795.0,
         "inter_nodes_exchanges_count": 69.0,
         "intra_two_nodes_count": 124.0,
         "intra_two_edges_count": 0.0,
@@ -127,6 +129,7 @@
     },
     "ls_stats_avg": {
         "total_moves": 132.22,
+        "moves_evaluated": 56669.15,
         "inter_nodes_exchanges_count": 54.01,
         "intra_two_nodes_count": 78.21,
         "intra_two_edges_count": 0.0,
