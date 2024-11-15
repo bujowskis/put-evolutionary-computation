@@ -21,7 +21,7 @@ def local_search_candidate_moves_solve(
         starting_solution_type: StartingSolutionType = StartingSolutionType.RANDOM,
         intra_route_move_type: IntraRouteMovesType = IntraRouteMovesType.TWO_NODES,
         candidates_number: int = 10,
-        starting_node: int = None,  # initial seed, in case of RANDOM start
+        starting_node: int = None,  # in case of RANDOM start - initial seed
 ) -> tuple[SolutionTSP, dict]:
     return LocalSearchCandidateMoves(tsp=tsp,
                                      local_search_type=local_search_type,
@@ -37,7 +37,7 @@ class LocalSearchCandidateMoves:
                  starting_solution_type: StartingSolutionType = StartingSolutionType.RANDOM,
                  intra_route_move_type: IntraRouteMovesType = IntraRouteMovesType.TWO_NODES,
                  candidates_number: int = 10,
-                 starting_node: int = None,  # initial seed, in case of RANDOM start
+                 starting_node: int = None,  # in case of RANDOM start - initial seed
                  ):
         self.tsp: TSP = tsp
         self.local_search_type: LocalSearchType = local_search_type

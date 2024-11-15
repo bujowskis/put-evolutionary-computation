@@ -15,21 +15,21 @@ from assignment3.local_search_types import (
 )
 
 
-def local_search_solve(
+def local_search_with_deltas_solve(
         tsp: TSP,
         local_search_type: LocalSearchType = LocalSearchType.STEEPEST,
         starting_solution_type: StartingSolutionType = StartingSolutionType.RANDOM,
         intra_route_move_type: IntraRouteMovesType = IntraRouteMovesType.TWO_NODES,
         starting_node: int = None,  # in case of RANDOM start - initial seed
 ) -> tuple[SolutionTSP, dict]:
-    return LocalSearch(tsp=tsp,
-                       local_search_type=local_search_type,
-                       starting_solution_type=starting_solution_type,
-                       intra_route_move_type=intra_route_move_type,
-                       starting_node=starting_node).solve()
+    return LocalSearchWithDeltas(tsp=tsp,
+                                 local_search_type=local_search_type,
+                                 starting_solution_type=starting_solution_type,
+                                 intra_route_move_type=intra_route_move_type,
+                                 starting_node=starting_node).solve()
 
-
-class LocalSearch:
+#TODO - check both ways AND if value is still the same?? (not value same - but if neighbors are also the same)
+class LocalSearchWithDeltas:
     def __init__(self, tsp: TSP,
                  local_search_type: LocalSearchType = LocalSearchType.STEEPEST,
                  starting_solution_type: StartingSolutionType = StartingSolutionType.RANDOM,
@@ -56,6 +56,7 @@ class LocalSearch:
         self.not_selected_nodes = [node for node in tsp.nodes if node not in self.cycle]
         self.last_cycle_idx = len(self.cycle) - 1
         self.moves: List[Tuple[int, int, MoveType, Tuple]] = list()
+        self.preserved_moves: List[Tuple[int, int, MoveType, Tuple]] = list()
 
         self.inter_nodes_exchanges_count: int = 0
         self.intra_two_nodes_count: int = 0
@@ -65,7 +66,7 @@ class LocalSearch:
     def solve(self) -> tuple[SolutionTSP, dict]:
         self.initialize_moves()
         while self.moves:
-            self.make_move_if_possible(self.get_move())
+            self.make_move_if_possible()
 
         total_moves = self.inter_nodes_exchanges_count + self.intra_two_nodes_count + self.intra_two_edges_count
 
@@ -79,6 +80,10 @@ class LocalSearch:
             'intra_two_nodes_percentage': None if total_moves == 0 else round(self.intra_two_nodes_count / total_moves, 2),
             'intra_two_edges_percentage': None if total_moves == 0 else round(self.intra_two_edges_count / total_moves, 2),
         }
+
+    def add_preserved_moves_back(self):
+        self.moves = self.preserved_moves + self.moves
+        self.preserved_moves = list()
 
     def add_move_if_improves(self, move: Tuple[int, MoveType, Tuple]):
         self.moves_evaluated_count += 1
@@ -119,8 +124,8 @@ class LocalSearch:
             for edge1_nodes, edge2_nodes in combinations(pairwise(self.cycle + [self.cycle[-1]]), 2):
                 self.add_intra_edges(edge1_nodes=edge1_nodes, edge2_nodes=edge2_nodes)
 
-    def make_move_if_possible(self, move: Tuple[int, MoveType, Tuple]):
-        objective_change, move_type, move_specification = move
+    def make_move_if_possible(self):
+        objective_change, moves_evaluated_count, move_type, move_specification = self.get_move()
         match move_type:
             case MoveType.INTER_NODES_EXCHANGE:
                 old_node, new_node, move_neighbors = move_specification
@@ -145,6 +150,7 @@ class LocalSearch:
                     self.inter_nodes_exchanges_count += 1
 
                     # add resulting new moves
+                    self.add_preserved_moves_back()
                     self.add_inter_nodes_moves(node_in_cycle=new_node, neighbors=move_neighbors)
                     if self.intra_route_move_type == IntraRouteMovesType.TWO_NODES:
                         for node2 in self.cycle:
@@ -183,6 +189,7 @@ class LocalSearch:
                     current_node1_neighbors = self.get_connected_nodes(node1)
                     current_node2_neighbors = self.get_connected_nodes(node2)
                     # add resulting new moves
+                    self.add_preserved_moves_back()
                     self.add_inter_nodes_moves(node_in_cycle=node1, neighbors=node2_neighbors)
                     self.add_inter_nodes_moves(node_in_cycle=node2, neighbors=node1_neighbors)
                     if self.intra_route_move_type == IntraRouteMovesType.TWO_NODES:
@@ -208,7 +215,8 @@ class LocalSearch:
                 edge1_nodes, edge2_nodes = move_specification
                 cycle_edges = list(pairwise(self.cycle + [self.cycle[-1]]))
                 # check if still valid
-                if (edge1_nodes in cycle_edges) and (edge2_nodes in cycle_edges):
+                if (((edge1_nodes in cycle_edges) and (edge2_nodes in cycle_edges)) or
+                        ((edge1_nodes[::-1] in cycle_edges) and (edge2_nodes[::-1] in cycle_edges))):
                     if self.local_search_type == LocalSearchType.GREEDY:
                         objective_change = self.calculate_intra_edges_objective_change(edge1_nodes, edge2_nodes)
                         self.moves_evaluated_count += 1
@@ -228,13 +236,35 @@ class LocalSearch:
                             middle.append(node)
                         else:
                             right.append(node)
-                    self.cycle = left + middle[::-1] + right
+                    middle = middle[::-1]
+                    self.cycle = left + middle + right
                     self.objective += objective_change
                     self.intra_two_edges_count += 1
+
                     # add resulting new moves
-                    # note: this move is so disruptive it's easier to just re-initialize moves.
-                    self.moves = []
-                    self.initialize_moves()
+                    self.add_preserved_moves_back()
+                    # inter nodes exchanges do not stay the same - neighbors at "shifting points" changed
+                    try:
+                        l, ml, mr, r = left[-1], middle[0], middle[-1], right[0]
+                    except IndexError:
+                        if len(left) == 0:
+                            l, ml, mr, r = middle[0], middle[-1], right[0], right[-1]
+                        elif len(right) == 0:
+                            l, ml, mr, r = left[0], left[-1], middle[0], middle[-1]
+                        else:
+                            raise Exception('wrong index error stuff')
+                    for node in (l, ml, mr, r):
+                        self.add_inter_nodes_moves(node, self.get_connected_nodes(node))
+                    # edges on "shifting points" changed
+                    for new_edge_nodes in ((l, ml), (mr, r)):
+                        for edge_nodes in pairwise(self.cycle + [self.cycle[-1]]):
+                            if new_edge_nodes == edge_nodes:
+                                continue
+                            self.add_intra_edges(edge1_nodes=new_edge_nodes, edge2_nodes=edge_nodes)
+                # note - wrong relative order is handled after flipping them right
+                if (((edge1_nodes[::-1] in cycle_edges) and (edge2_nodes in cycle_edges)) or
+                        ((edge1_nodes in cycle_edges) and (edge2_nodes[::-1] in cycle_edges))):
+                    self.preserved_moves.append((objective_change, moves_evaluated_count, move_type, move_specification))
 
     def calculate_intra_nodes_objective_change(self, node1, node1_neighbors, node2, node2_neighbors) -> int:
         # ..., node1_neighbors[0], node1, node2, node2_neighbors[1]
@@ -303,8 +333,9 @@ class LocalSearch:
 
         ___         _____
         1 2-6 5 4 3-7 8 9
-        _______
+            _______
         ^reversed
+        note - need to introduce only 2 edges - at reversal points
         """
         if self.local_search_type == LocalSearchType.STEEPEST:
             objective_change = self.calculate_intra_edges_objective_change(edge1_nodes, edge2_nodes)
@@ -341,14 +372,12 @@ class LocalSearch:
                     (node_in_cycle, non_cycle_node, neighbors)
                 ))
 
-    def get_move(self) -> Tuple[int, MoveType, Tuple]:
+    def get_move(self) -> Tuple[int, int, MoveType, Tuple]:
         match self.local_search_type:
             case LocalSearchType.STEEPEST:
-                objective_change, _, move_type, move_specification = heapq.heappop(self.moves)
-                return objective_change, move_type, move_specification
+                return heapq.heappop(self.moves)
             case LocalSearchType.GREEDY:
-                objective_change, _, move_type, move_specification = self.moves.pop(choice(range(len(self.moves))))
-                return objective_change, move_type, move_specification
+                return self.moves.pop(choice(range(len(self.moves))))
             case _:
                 raise Exception('no such local_search_type')
 
@@ -356,10 +385,11 @@ class LocalSearch:
 if __name__ == "__main__":
     tsp = TSP.load_tspa(data_folder='../data')
     t0 = time()
-    solution, stats = local_search_solve(
+    solution, stats = local_search_with_deltas_solve(
         tsp,
-        starting_solution_type=StartingSolutionType.GREEDY,
-        local_search_type=LocalSearchType.GREEDY,
+        starting_solution_type=StartingSolutionType.RANDOM,
+        local_search_type=LocalSearchType.STEEPEST,
+        intra_route_move_type=IntraRouteMovesType.TWO_EDGES,
     )
     t1 = time()
     print(f'execution_time: {t1 - t0}')
