@@ -21,12 +21,14 @@ def local_search_no_deltas_solve(
         starting_solution_type: StartingSolutionType = StartingSolutionType.RANDOM,
         intra_route_move_type: IntraRouteMovesType = IntraRouteMovesType.TWO_NODES,
         starting_node: int = None,  # in case of RANDOM start - initial seed
+        starting_solution: SolutionTSP | None = None,  # in case provided, used instead of generating starting solution
 ) -> tuple[SolutionTSP, dict]:
     return LocalSearchNoDeltas(tsp=tsp,
                                local_search_type=local_search_type,
                                starting_solution_type=starting_solution_type,
                                intra_route_move_type=intra_route_move_type,
-                               starting_node=starting_node).solve()
+                               starting_node=starting_node,
+                               starting_solution=starting_solution).solve()
 
 
 class LocalSearchNoDeltas:
@@ -35,6 +37,7 @@ class LocalSearchNoDeltas:
                  starting_solution_type: StartingSolutionType = StartingSolutionType.RANDOM,
                  intra_route_move_type: IntraRouteMovesType = IntraRouteMovesType.TWO_NODES,
                  starting_node: int = None,  # in case of RANDOM start - initial seed
+                 starting_solution: SolutionTSP | None = None,  # in case provided, used instead of generating starting solution
                  ):
         self.tsp: TSP = tsp
         self.local_search_type: LocalSearchType = local_search_type
@@ -43,13 +46,16 @@ class LocalSearchNoDeltas:
         self.starting_node: int = starting_node
 
         self.initial_solution: SolutionTSP
-        match starting_solution_type:
-            case StartingSolutionType.RANDOM:
-                self.initial_solution = random_solve(tsp, initial_seed=starting_node)
-            case StartingSolutionType.GREEDY:
-                self.initial_solution = nearest_neighbor_at_any_solve(tsp, starting_node=starting_node)
-            case _:
-                raise Exception('no such starting_solution_type')
+        if starting_solution:
+            self.initial_solution = starting_solution
+        else:
+            match starting_solution_type:
+                case StartingSolutionType.RANDOM:
+                    self.initial_solution = random_solve(tsp, initial_seed=starting_node)
+                case StartingSolutionType.GREEDY:
+                    self.initial_solution = nearest_neighbor_at_any_solve(tsp, starting_node=starting_node)
+                case _:
+                    raise Exception('no such starting_solution_type')
 
         self.cycle = self.initial_solution.nodes
         self.objective = self.initial_solution.objective_function
