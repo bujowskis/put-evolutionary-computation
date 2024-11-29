@@ -89,13 +89,13 @@ if __name__ == '__main__':
 
         best, worst = min(solutions), max(solutions)
 
-        print(f'Iterated Local Search')
+        print(f'Iterated Local Search - Segment Exchange')
         print(best)
 
-        with open(f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/pkl/{problem_name}-ils-best.pkl', 'wb') as file:
+        with open(f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/pkl/{problem_name}-ils-segex-best.pkl', 'wb') as file:
             pickle.dump(best, file)
 
-        with open(f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/json/{problem_name}-ils.json', 'w') as json_file:
+        with open(f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/json/{problem_name}-ils-segex.json', 'w') as json_file:
             json.dump({
                 'min_objective_function': best.objective_function,
                 'max_objective_function': worst.objective_function,
@@ -110,8 +110,8 @@ if __name__ == '__main__':
             }, json_file, indent=4, default=lambda x: int(x) if isinstance(x, numpy.int64) else x)
 
         tsp.visualize_solution(
-            best, method_name=f'{problem_name} Iterated Local Search',
-            path_to_save=f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/png/{problem_name}-ils-best.png')
+            best, method_name=f'{problem_name} Iterated Local Search - Segment Exchange',
+            path_to_save=f'{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/png/{problem_name}-ils-segex-best.png')
 
     t_end = time()
     print(f'duration of whole experiment: {t_end - t_start}')

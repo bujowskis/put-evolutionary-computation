@@ -231,10 +231,10 @@ def iterated_local_search_solve(
 
     t0 = time()
     while True:
-        new_solution = perturbate_random_node_exchanges(exchanges=10)
+        # new_solution = perturbate_random_node_exchanges(exchanges=10)
         # new_solution = perturbate_exchange_low_nn_cost(solution, exchanges=5, neighborhood_size=5)
         # new_solution = perturbate_exchange_low_cost_nodes(solution, exchanges=5)
-        # new_solution = perturbate_segment_exchange(solution, segment_size=5, exchanges=5)  # <- just this for TSPB
+        new_solution = perturbate_segment_exchange(solution, segment_size=3, exchanges=5)  # <- just this for TSPB
         # new_solution = perturbate_shuffle_segments(solution, segments_no=50)  # <- just this for TSPA
         # new_solution = perturbate_shuffle_segments(new_solution, segments_no=10)  # <- just this for TSPA
         # new_solution = perturbate_shuffle_segments(new_solution, segments_no=5)
