@@ -1,3 +1,5 @@
+import copy
+
 from data_loader import TSP, SolutionTSP
 from random import seed, sample, shuffle, choice
 from time import time
@@ -123,7 +125,7 @@ def iterated_local_search_solve(
         return tsp.calculate_solution(result)
 
     def perturbate_segment_exchange(input_solution: SolutionTSP, segment_size: int = 5, exchanges: int = 5):
-        nodes = input_solution.nodes
+        nodes = input_solution.nodes.copy()
         for _ in range(exchanges):
             segment1_start = nodes.index(choice(nodes))
             segment1 = {(segment1_start + i) % len(nodes): nodes[(segment1_start + i) % len(nodes)]
@@ -252,10 +254,10 @@ def iterated_local_search_solve(
         number_of_local_search_runs += 1
         # print(f'{new_solution.objective_function} < {solution.objective_function}')
         if new_solution.objective_function < solution.objective_function:
-            solution = new_solution
+            solution = copy.deepcopy(new_solution)
 
         if time() - t0 > timeout_after_seconds:
-            break
+            return solution, number_of_local_search_runs
 
-    return solution, number_of_local_search_runs
+    # return solution, number_of_local_search_runs
     # return best_so_far[0], number_of_local_search_runs
