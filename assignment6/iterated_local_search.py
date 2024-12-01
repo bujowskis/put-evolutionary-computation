@@ -19,7 +19,7 @@ def iterated_local_search_solve(
         starting_solution_type: StartingSolutionType = StartingSolutionType.RANDOM,
         intra_route_move_type: IntraRouteMovesType = IntraRouteMovesType.TWO_EDGES,
         starting_node: int = None,  # in case of RANDOM start - initial seed,
-        timeout_after_seconds: int = 47,
+        timeout_after_seconds: int = 47,  # average running time of MSLS run
 ) -> tuple[SolutionTSP, int]:
     number_of_local_search_runs = 0
 

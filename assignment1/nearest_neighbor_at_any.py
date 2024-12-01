@@ -5,11 +5,15 @@ from typing import Tuple
 from time import time
 
 
-def nearest_neighbor_at_any_solve(tsp: TSP, starting_node: int = None) -> SolutionTSP:
-    if starting_node is None:
-        starting_node = choice(tsp.nodes)
+def nearest_neighbor_at_any_solve(tsp: TSP, starting_node: int = None,
+                                  starting_nodes: list[int] | None = None) -> SolutionTSP:
+    if starting_nodes:
+        chosen_nodes = starting_nodes
+    elif starting_node is None:
+        chosen_nodes = [choice(tsp.nodes)]
+    else:
+        chosen_nodes = [starting_node]
 
-    chosen_nodes = [starting_node]
     remaining_nodes = tsp.get_nodes(without_nodes=chosen_nodes)
 
     # todo - into TSP? (pass remaining nodes?)
