@@ -26,7 +26,7 @@ if __name__ == '__main__':
     intra_route_move_type = IntraRouteMovesType.TWO_EDGES
 
     for problem_name, tsp in problems.items():
-        for should_use_local_search in [False, True]:
+        for should_use_local_search in [False]:  # [False, True]:
             solutions, times, all_stats, numbers_of_main_loop_runs = [], [], [], []
             for i in range(20):
                 t0 = time()

@@ -11,7 +11,7 @@ from assignment3.local_search_types import (
     StartingSolutionType,
     IntraRouteMovesType,
 )
-from assignment1.random_solution import random_solve
+# from assignment1.random_solution import random_solve
 from assignment1.nearest_neighbor_at_any import nearest_neighbor_at_any_solve
 from assignment5.local_search_with_deltas import local_search_with_deltas_solve
 
@@ -30,16 +30,23 @@ def large_scale_neighborhood_search_solve(
     if starting_node and starting_solution_type == StartingSolutionType.RANDOM:
         seed(starting_node)
 
-    if should_use_local_search:
-        solution, _ = local_search_with_deltas_solve(
-            tsp=tsp,
-            local_search_type=local_search_type,
-            starting_solution_type=starting_solution_type,
-            intra_route_move_type=intra_route_move_type,
-            starting_node=starting_node,
-        )
-    else:
-        solution = random_solve(tsp=tsp, initial_seed=starting_node)
+    # if should_use_local_search:
+    #     solution, _ = local_search_with_deltas_solve(
+    #         tsp=tsp,
+    #         local_search_type=local_search_type,
+    #         starting_solution_type=starting_solution_type,
+    #         intra_route_move_type=intra_route_move_type,
+    #         starting_node=starting_node,
+    #     )
+    # else:
+    #     solution = random_solve(tsp=tsp, initial_seed=starting_node)
+    solution, _ = local_search_with_deltas_solve(
+        tsp=tsp,
+        local_search_type=local_search_type,
+        starting_solution_type=starting_solution_type,
+        intra_route_move_type=intra_route_move_type,
+        starting_node=starting_node,
+    )
 
     percentage_destroyed: int = 25
     nodes_to_destroy = ceil(len(solution.nodes) * percentage_destroyed / 100)
