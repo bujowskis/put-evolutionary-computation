@@ -45,42 +45,44 @@ if __name__ == '__main__':
             print(f'run:\t{run},\ttime: {times[-1]},\ttotal_time: {total_time},\tobjective_function: {solution.objective_function}')
             run += 1
 
-        sorted_solutions = sorted(solutions)
-        best_solution = sorted_solutions[0]
-
-        avg_objective_function = mean([s.objective_function for s in solutions])
-        solution_closest_to_avg = min(solutions, key=lambda s: abs(s.objective_function - avg_objective_function))
-
         # note - 100 nodes and 100 edges are max
-        sorted_solutions_without_best = sorted_solutions.copy()[1:]
-        edges_similarities_to_best = [
-            measure_common_edges(baseline_solution=best_solution, compared_solution=s)
-            for s in sorted_solutions_without_best
-        ]
-        nodes_similarities_to_best = [
-            measure_common_nodes(baseline_solution=best_solution, compared_solution=s)
-            for s in sorted_solutions_without_best
-        ]
-        df_best = pd.DataFrame({
-            "objective_function": [s.objective_function for s in sorted_solutions_without_best],
-            "edges_similarity": edges_similarities_to_best,
-            "nodes_similarity": nodes_similarities_to_best,
-        })
-        df_best.to_csv(f"{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/best.csv")
+        sorted_solutions = sorted(solutions)
 
-        sorted_solutions_without_avg = [s for s in sorted_solutions if s != solution_closest_to_avg]
-        edges_similarities_to_avg = [
-            measure_common_edges(baseline_solution=solution_closest_to_avg, compared_solution=s)
-            for s in sorted_solutions_without_avg
+        # calculations for best
+        # best_solution = sorted_solutions[0]
+        # sorted_solutions_without_best = sorted_solutions.copy()[1:]
+        # edges_similarities_to_best = [
+        #     measure_common_edges(baseline_solution=best_solution, compared_solution=s)
+        #     for s in sorted_solutions_without_best
+        # ]
+        # nodes_similarities_to_best = [
+        #     measure_common_nodes(baseline_solution=best_solution, compared_solution=s)
+        #     for s in sorted_solutions_without_best
+        # ]
+        # df_best = pd.DataFrame({
+        #     "objective_function": [s.objective_function for s in sorted_solutions_without_best],
+        #     "edges_similarity": edges_similarities_to_best,
+        #     "nodes_similarity": nodes_similarities_to_best,
+        # })
+        # df_best.to_csv(f"{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/best.csv")
+
+        # calculations for avg
+        edges_similarities_avg = [
+            mean([measure_common_edges(baseline_solution=s, compared_solution=compared_solution)
+                  for compared_solution in sorted_solutions
+                  if compared_solution is not s])
+            for s in sorted_solutions
         ]
-        nodes_similarities_to_avg = [
-            measure_common_nodes(baseline_solution=solution_closest_to_avg, compared_solution=s)
-            for s in sorted_solutions_without_avg
+        nodes_similarities_avg = [
+            mean([measure_common_nodes(baseline_solution=s, compared_solution=compared_solution)
+                  for compared_solution in sorted_solutions
+                  if compared_solution is not s])
+            for s in sorted_solutions
         ]
         df_avg = pd.DataFrame({
-            "objective_function": [s.objective_function for s in sorted_solutions_without_avg],
-            "edges_similarity": edges_similarities_to_avg,
-            "nodes_similarity": nodes_similarities_to_avg,
+            "objective_function": [s.objective_function for s in sorted_solutions],
+            "edges_similarity": edges_similarities_avg,
+            "nodes_similarity": nodes_similarities_avg,
         })
         df_avg.to_csv(f"{EXPERIMENTS_RESULTS_FOLDER}/{problem_name}/avg.csv")
 

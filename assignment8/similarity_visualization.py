@@ -22,7 +22,7 @@ def plot_similarities(problem_name: str, similarity: str, baseline_solution: str
 if __name__ == "__main__":
     problem_names = ['TSPA', 'TSPB']
     similarities = ['nodes_similarity', 'edges_similarity']
-    baseline_solutions = ['best', 'avg']
+    baseline_solutions = ['avg']  # ['best', 'avg']
 
     for problem_name, similarity, baseline_solution in product(problem_names, similarities, baseline_solutions):
         plot_similarities(problem_name=problem_name, similarity=similarity, baseline_solution=baseline_solution)
