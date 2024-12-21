@@ -1,21 +1,3 @@
-# elite population 20
-# steady-state (no completely new population every generation)
-# uniform probability for selection (no selective pressure)
-# no copies of the same solution
-#   - can compare entire solution
-#   - can compare value of objective function (more efficient)
-
-# recombination operators
-# 1 - locate all common nodes and edges, fill the rest at random
-# 2 - choose one parent as starting solution
-#   - remove all edges and nodes not present in other parent
-#   - repair using heuristic method (as in LNS - nn_at_any() with specified start)
-
-# 1 config - with LS after recombination
-# 2 config - without LS after recombination
-
-# local search for initial population
-
 from data_loader import TSP, SolutionTSP
 from random import seed, choice
 import heapq
@@ -178,5 +160,3 @@ def evolutionary_algorithm_solve(
         population = push_to_population_if_viable(child, population)
 
     return population[0], number_of_main_loop_runs
-# experiment - same params as ILS/LNS
-# report - compare to MSLS, ILS, LNS
