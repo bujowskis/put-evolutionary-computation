@@ -5,14 +5,20 @@ from typing import Tuple
 from time import time
 
 
-def nearest_neighbor_at_any_solve(tsp: TSP, starting_node: int = None,
-                                  starting_nodes: list[int] | None = None) -> SolutionTSP:
+def nearest_neighbor_at_any_solve(
+        tsp: TSP, starting_node: int = None,
+        starting_nodes: list[int] | None = None,
+        except_edges: set[tuple[int, int]] | None = None
+) -> SolutionTSP:
     if starting_nodes:
         chosen_nodes = starting_nodes
     elif starting_node is None:
         chosen_nodes = [choice(tsp.nodes)]
     else:
         chosen_nodes = [starting_node]
+
+    if except_edges is None:
+        except_edges = set()
 
     remaining_nodes = tsp.get_nodes(without_nodes=chosen_nodes)
 
@@ -51,6 +57,7 @@ def nearest_neighbor_at_any_solve(tsp: TSP, starting_node: int = None,
         best_choices_between = [
             ((start, end), get_smallest_move_cost_node_between(start, end))
             for start, end in pairwise(chosen_nodes)
+            if (start, end) not in except_edges
         ]
 
         best_place, (next_node, _) = min([best_from_start, best_from_end] + best_choices_between, key=lambda x: x[1][1])
