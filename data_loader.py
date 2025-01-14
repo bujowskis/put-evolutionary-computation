@@ -57,6 +57,7 @@ class TSP:
         self.total_move_costs: ndarray = self.calculate_total_move_costs_matrix()
         # note - distance is the same both sides, so could improve by doing only upper half
         self.insertion_costs: ndarray = self.calculate_insertion_costs()
+        self.removal_changes: ndarray = self.calculate_removal_change()  # reverse operation of insertion_costs
 
     def calculate_additional_cost_array(self) -> ndarray:
         return self.raw_data['additional_cost'].to_numpy()
@@ -103,6 +104,23 @@ class TSP:
                     insertion_costs[start][end][inserted] = inserted_edge_cost - previous_edge_cost
 
         return insertion_costs
+
+    def calculate_removal_change(self) -> ndarray:
+        # [edge_start_node][edge_end_node][inserted_node]
+        removal_changes = zeros((len(self.raw_data), len(self.raw_data), len(self.raw_data))).astype(int)
+        for start in range(len(self.raw_data)):
+            for end in range(len(self.raw_data)):
+                for inserted in range(len(self.raw_data)):
+                    if inserted == start or inserted == end:
+                        continue
+                    if start == end:
+                        continue
+                    removed_edge_cost = (self.distances_matrix[start][inserted] + self.distances_matrix[inserted][end]
+                                          + self.additional_costs[inserted])
+                    previous_edge_cost = self.distances_matrix[start][end]
+                    removal_changes[start][end][inserted] = - removed_edge_cost + previous_edge_cost
+
+        return removal_changes
 
     def get_required_number_of_nodes_in_solution(self) -> int:
         return ceil(len(self.raw_data) / 2).astype(int)

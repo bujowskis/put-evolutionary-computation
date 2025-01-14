@@ -1,14 +1,14 @@
 from data_loader import TSP, SolutionTSP
 from random import choice
 from itertools import pairwise
-from typing import Tuple
 from time import time
 
 
 def nearest_neighbor_at_any_solve(
         tsp: TSP, starting_node: int = None,
         starting_nodes: list[int] | None = None,
-        except_edges: set[tuple[int, int]] | None = None
+        except_edges: set[tuple[int, int]] | None = None,
+        desired_number_of_nodes: int | None = None,
 ) -> SolutionTSP:
     if starting_nodes:
         chosen_nodes = starting_nodes
@@ -25,7 +25,7 @@ def nearest_neighbor_at_any_solve(
     # todo - into TSP? (pass remaining nodes?)
     # note - could be done better by avoiding unnecessary calculations - only need to update
     # actually touching the currently removed node(?)
-    def get_smallest_move_cost_node_directly_from(node: int) -> Tuple[int, int]:
+    def get_smallest_move_cost_node_directly_from(node: int) -> tuple[int, int]:
         remaining_nodes_move_costs_from_node = [
             tsp.total_move_costs[node][destination_node]
             for destination_node in remaining_nodes
@@ -50,7 +50,7 @@ def nearest_neighbor_at_any_solve(
 
         return remaining_nodes[smallest_move_cost_node_idx], smallest_move_cost
 
-    required_number_of_nodes = tsp.get_required_number_of_nodes_in_solution()
+    required_number_of_nodes = tsp.get_required_number_of_nodes_in_solution() if desired_number_of_nodes is None else desired_number_of_nodes
     while len(chosen_nodes) < required_number_of_nodes and remaining_nodes:
         best_from_start = (0, get_smallest_move_cost_node_directly_from(chosen_nodes[0]))
         best_from_end = (-1, get_smallest_move_cost_node_directly_from(chosen_nodes[-1]))
@@ -79,5 +79,8 @@ if __name__ == "__main__":
     solution = nearest_neighbor_at_any_solve(tsp)
     t1 = time()
     print(f'execution_time: {t1 - t0}')
+    print(solution)
+    print(solution.nodes_in_excel_format())
+    solution = nearest_neighbor_at_any_solve(tsp=tsp, desired_number_of_nodes=5)
     print(solution)
     print(solution.nodes_in_excel_format())
