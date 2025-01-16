@@ -14,10 +14,14 @@ INF = 10**18
 
 
 # todo - ls (but keep same nodes)???
-def cycle_stripper_solve(tsp: TSP, ls_interval: int = 5, should_run_ls_at_end: bool = False) -> SolutionTSP:
+def cycle_stripper_solve(
+        tsp: TSP,
+        ls_interval: int = 5,
+        should_run_ls_at_end: bool = False
+) -> SolutionTSP:
     nodes = tsp.nodes.copy()
     shuffle(nodes)
-    solution, _ = local_search_no_deltas_solve(
+    solution, _ = local_search_with_deltas_solve(
         tsp=tsp,
         local_search_type=LocalSearchType.STEEPEST,
         intra_route_move_type=IntraRouteMovesType.TWO_EDGES,
@@ -61,7 +65,7 @@ def cycle_stripper_solve(tsp: TSP, ls_interval: int = 5, should_run_ls_at_end: b
             nodes = solution.nodes
 
     if should_run_ls_at_end:
-        solution, _ = local_search_no_deltas_solve(
+        solution, _ = local_search_with_deltas_solve(
             tsp=tsp,
             local_search_type=LocalSearchType.STEEPEST,
             intra_route_move_type=IntraRouteMovesType.TWO_EDGES,
@@ -75,7 +79,7 @@ def cycle_stripper_solve(tsp: TSP, ls_interval: int = 5, should_run_ls_at_end: b
 if __name__ == "__main__":
     tsp = TSP.load_tspa(data_folder='../data')
     t0 = time()
-    solution = cycle_stripper_solve(tsp)
+    solution = cycle_stripper_solve(tsp, ls_interval=-1, should_run_ls_at_end=True)
     t1 = time()
     print(f'execution_time: {t1 - t0}')
     print(len(solution.nodes))
